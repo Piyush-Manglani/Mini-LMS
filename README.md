@@ -47,7 +47,7 @@ The application relies on the following environment variables. They are defined 
 
 | Login Screen | Course Catalog | Course Details | Profile Screen |
 | :---: | :---: | :---: | :---: |
-| <img src="https://drive.google.com/file/d/17AJXSq7suuHclcsCBNKuO5ACVPAzdwEM/view?usp=drive_link" width="200" /> | <img src="https://drive.google.com/file/d/1szbtxczSJm1rs6xO8RlrwIeeCMYeiy_5/view?usp=drive_link" width="200" /> | <img src="https://drive.google.com/file/d/1fd6bI2aJSYr0BRKlpzOJmijqywLHr0vs/view?usp=drive_link" width="200" /> | <img src="https://drive.google.com/file/d/1n1MI5CWkpMI0k3ejQsN77ZVW_sKQJNBZ/view?usp=drive_link" width="200" /> |
+| <img src="/assets/images/login.jpeg" width="200" /> | <img src="/assets/images/course.jpeg" width="200" /> | <img src="/assets/images/coursedetail.jpeg" width="200" /> | <img src="/assets/images/profile.jpeg" width="200" /> |
 
 *(Replace the placeholder URLs above with actual hosted screenshot images before final deployment)*
 
