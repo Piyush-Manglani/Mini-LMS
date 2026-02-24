@@ -1,50 +1,58 @@
-# Welcome to your Expo app 👋
+# Mini LMS App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A comprehensive Mini Learning Management System (LMS) mobile application built with React Native Expo. This application provides users with features like authentication, a course catalog, course bookmarks, profile statistics, and embedded course content viewing.
 
-## Get started
+## 🚀 Setup Instructions
 
-1. Install dependencies
-
+1. **Clone the repository** (if you haven't already).
+2. **Install dependencies**:
    ```bash
    npm install
    ```
-
-2. Start the app
-
+3. **Set up Environment Variables**:
+   Copy the example environment file and update it with your actual variables if needed:
+   ```bash
+   cp .env-example .env
+   ```
+4. **Start the development server**:
    ```bash
    npx expo start
    ```
+   Open the app using Expo Go on your physical device, or use an iOS Simulator / Android Emulator.
 
-In the output, you'll find options to open the app in a
+## 🔑 Environment Variables Needed
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+The application relies on the following environment variables. They are defined in the `.env` file (see `.env-example` for the template):
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- `EXPO_PUBLIC_API_URL`: The base URL for the backend API. Default fallback in the codebase is `https://api.freeapi.app/api/v1`.
 
-## Get a fresh project
+## 🏗️ Key Architectural Decisions
 
-When you're ready, run:
+- **Framework**: `Expo` (React Native) + `Expo Router` for file-based navigation.
+- **Styling**: `NativeWind` (Tailwind CSS for React Native) for rapid, utility-first UI development.
+- **State Management**: React `Context API` handles global states such as Authentication (`AuthContext`) and Bookmarks (`BookmarkContext`). Chosen over Redux for simplicity and reduced boilerplate for this app's scale.
+- **Network Client**: `Axios` with configured interceptors for automatic token injection and structured error handling.
+- **Secure Storage**: `Expo SecureStore` is utilized for securely storing sensitive tokens (access & refresh tokens), while general data uses standard `AsyncStorage`.
+- **Form Handling & Validation**: Used `React Hook Form` combined with `Zod` resolvers for strict client-side form validation before API submission.
+- **Type Safety**: The entire application is strictly typed using TypeScript, eliminating the usage of `any` for predictable API shapes and UI props.
 
-```bash
-npm run reset-project
-```
+## ⚠️ Known Issues / Limitations
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- **Simulated Enrollment**: Real enrollment and payment gateways are currently mocked out. Enrollment simulates an API delay before transitioning the user.
+- **Instructor Data**: The FreeAPI doesn't have a direct correlation between courses and instructors. The app currently maps random user data to courses cyclically.
+- **Avatar Updates**: The "Update Photo" button on the profile screen is currently a placeholder.
+- **Pagination**: The course catalog currently truncates API responses to the top 10 items instead of utilizing infinite pagination.
 
-## Learn more
+## 📸 Screenshots
+
+| Login Screen | Course Catalog | Course Details | Profile Screen |
+| :---: | :---: | :---: | :---: |
+| <img src="https://placehold.co/300x600/png?text=Login+Screen" width="200" /> | <img src="https://placehold.co/300x600/png?text=Course+Catalog" width="200" /> | <img src="https://placehold.co/300x600/png?text=Course+Details" width="200" /> | <img src="https://placehold.co/300x600/png?text=Profile+Screen" width="200" /> |
+
+*(Replace the placeholder URLs above with actual hosted screenshot images before final deployment)*
+
+---
 
 To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Expo documentation](https://docs.expo.dev/)
+- [React Native documentation](https://reactnative.dev/docs/getting-started)
