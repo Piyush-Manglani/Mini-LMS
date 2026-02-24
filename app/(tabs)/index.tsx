@@ -1,98 +1,125 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, Text, TextInput, View } from 'react-native';
+import { courseService } from '../../src/api/services/course';
+import { CourseCard } from '../../src/components/course/CourseCard';
+import { useBookmarks } from '../../src/store/BookmarkContext';
+import { Instructor, Product } from '../../src/types';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function CourseCatalogScreen() {
+  const [courses, setCourses] = useState<Product[]>([]);
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-export default function HomeScreen() {
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const router = useRouter();
+
+  const fetchData = async () => {
+    try {
+      const [coursesRes, instructorsRes] = await Promise.all([
+        courseService.getCourses(),
+        courseService.getInstructors()
+      ]);
+
+      if (coursesRes.success && coursesRes.data) {
+        const apiData = coursesRes.data as any;
+
+        let productsArray = [];
+        if (apiData.data && Array.isArray(apiData.data)) {
+          productsArray = apiData.data;
+        } else if (apiData.products && Array.isArray(apiData.products)) {
+          productsArray = apiData.products;
+        } else if (Array.isArray(apiData)) {
+          productsArray = apiData;
+        } else if (apiData.data && apiData.data.data && Array.isArray(apiData.data.data)) {
+          productsArray = apiData.data.data;
+        }
+
+        setCourses(productsArray.slice(0, 10));
+      }
+
+      if (instructorsRes.success) {
+        const users = instructorsRes.data?.data?.users || instructorsRes.data?.users || instructorsRes.data?.data || [];
+        setInstructors(Array.isArray(users) ? users : []);
+      }
+    } catch (error) {
+      // Ignored
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchData();
+  }, []);
+
+  const getInstructorName = (index: number) => {
+    if (instructors.length === 0) return 'John Doe';
+    const instructor = instructors[index % instructors.length];
+    return instructor?.name?.first ? `${instructor.name.first} ${instructor.name.last}` : instructor?.username || 'Jane Smith';
+  };
+
+  const filteredCourses = courses.filter((c) =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const renderItem = useCallback(({ item, index }: { item: Product; index: number }) => (
+    <CourseCard
+      course={item}
+      instructorName={getInstructorName(index)}
+      isBookmarked={isBookmarked(item.id)}
+      onPress={() => router.push(`/course/${item.id}`)}
+      onBookmarkPress={() => toggleBookmark(item.id)}
+    />
+  ), [instructors, isBookmarked]);
+
+  if (loading && !refreshing) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#2563eb" />
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View className="flex-1 bg-gray-50">
+      <View className="px-4 py-3 bg-white shadow-sm border-b border-gray-100 z-10 flex-row items-center">
+        <MaterialIcons name="search" size={24} color="#9ca3af" className="absolute left-6 z-20" />
+        <TextInput
+          className="bg-gray-100 rounded-xl px-4 py-3 pl-10 flex-1 text-base text-gray-900"
+          placeholder="Search courses..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor="#9ca3af"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <FlatList
+        data={filteredCourses}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />
+        }
+        ListEmptyComponent={
+          <View className="py-12 items-center">
+            <MaterialIcons name="search-off" size={48} color="#d1d5db" />
+            <Text className="text-gray-500 mt-4 text-base">No courses found matching "{searchQuery}"</Text>
+          </View>
+        }
+      />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
